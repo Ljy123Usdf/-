@@ -61,6 +61,23 @@ Titles:
       - "车种"
       - "货源地"
       - "备注"
+  waybill:
+    ExcelTitle:
+      - "货运编号"
+      - "收货方"
+      - "收货人手机"
+      - "收货方地址"
+      - "货物名称"
+      - "件数"
+      - "体积（M）"
+      - "体积（M）"
+      - "运费"
+      - "始发地"
+      - "目的地"
+      - "收货时间"
+      - "备注"
+      - "货物开始运输时间"
 #excel文件名
 ExcelFileName:
-  monthexcelname: "月计划信息导入"
+  monthexcelname: "月计划信息导入模板"
+  waybillexcelname: "运单信息导入模板"

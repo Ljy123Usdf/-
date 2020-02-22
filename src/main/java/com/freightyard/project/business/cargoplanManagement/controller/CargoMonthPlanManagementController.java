@@ -18,8 +18,8 @@ import java.util.List;
 
 @Api(tags="月计划接口")
 @RestController
-@RequestMapping("cargoplanManagementController")
-public class cargoplanManagementController {
+@RequestMapping("cargopMonthPlanManagementController")
+public class CargoMonthPlanManagementController {
     @Autowired
     MonthPlanMapper monthPlanMapper;
 
