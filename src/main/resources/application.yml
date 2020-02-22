@@ -1,0 +1,66 @@
+server:
+  servlet:
+    context-path: /
+  url: localhost
+  port: 8080
+
+  tomcat:
+    max-threads: 300
+    max-http-post-size: 10240000
+
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    platform: mysql
+    url: jdbc:mysql://127.0.0.1:3306/cargo_area_location?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: 123456
+    druid:
+      filter:
+        wall:
+          config:
+            multi-statement-allow: true
+            none-base-statement-allow: true
+      filters: stat,log4j2
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
+
+#mybatis
+mybatis:
+  configuration:
+    mapUnderscoreToCamelCase: true
+
+#pagehelper
+pagehelper:
+  helper-dialect: mysql
+  row-bounds-with-count: false
+  reasonable: true
+
+logging:
+  config: classpath:log4j2.xml
+
+swagger:
+  enabled: true
+
+Titles:
+  monthplan:
+    ExcelTitle:
+      - "货物名称"
+      - "日均（车）"
+      - "净载重（t/车）"
+      - "车数"
+      - "运价（吨公里)"
+      - "发送吨（开始发送时的重量)"
+      - "始发站"
+      - "终到站"
+      - "日期"
+      - "车种"
+      - "货源地"
+      - "备注"
+#excel文件名
+ExcelFileName:
+  monthexcelname: "月计划信息导入"
