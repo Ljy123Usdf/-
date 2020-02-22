@@ -12,8 +12,6 @@ import com.github.pagehelper.PageInfo;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Name;
-import org.apache.poi.ss.util.CellRangeAddressList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,18 +64,49 @@ public class monthplanServiceImp implements monthplanService {
     }
 
     @Override
-    public Integer insertManyplans(List<MonthPlan> monthPlanList, MultipartFile multipartFile) throws Exception {
-
+    public Integer insertManyplans(MultipartFile multipartFile) throws Exception {
+        MonthPlan monthPlan=null;
+        List<MonthPlan> monthPlanList = new ArrayList<>();
         InputStream inputStream = multipartFile.getInputStream();
         HSSFWorkbook wb = new HSSFWorkbook(inputStream);
         HSSFSheet sheetlist = wb.getSheet("sheetlist");
-        int rowlNum = sheetlist.getLastRowNum();
-        for (int i = 1; i<=rowlNum; i++) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+
+        int[] arr = {0,1,2,3,4,5,6,7,8,9,10,11};
+        int hadrows=PoiUtil.getEffectiveRowNum(wb,arr,12);
+        for (int i = 1; i <= hadrows; i++) {
             HSSFRow row = sheetlist.getRow(i);
-
+            if (row == null || row.toString().isEmpty()) {
+                break;
+            }
+            monthPlan=new MonthPlan();
+            String cargoName=PoiUtil.getCellValueByCell(row.getCell(0));
+            monthPlan.setCargoName(cargoName);
+            String dayAvaerage=PoiUtil.getCellValueByCell(row.getCell(1));
+            monthPlan.setDayAvaerage(Integer.valueOf(dayAvaerage));
+            String netLoad=PoiUtil.getCellValueByCell(row.getCell(2));
+            monthPlan.setNetLoad(Double.valueOf(netLoad));
+            String carNumber=PoiUtil.getCellValueByCell(row.getCell(3));
+            monthPlan.setCarNumber(Integer.valueOf(carNumber));
+            String cargoTransportRate=PoiUtil.getCellValueByCell(row.getCell(4));
+            monthPlan.setCargoTransportRate(Double.valueOf(cargoTransportRate));
+            String transmitWeight=PoiUtil.getCellValueByCell(row.getCell(5));
+            monthPlan.setTransmitWeight(Double.valueOf(transmitWeight));
+            String endStation=PoiUtil.getCellValueByCell(row.getCell(6));
+            monthPlan.setEndStation(endStation);
+            String beginStation=PoiUtil.getCellValueByCell(row.getCell(7));
+            monthPlan.setBeginStation(beginStation);
+            String date=PoiUtil.getCellValueByCell(row.getCell(8));
+            monthPlan.setDate(df.parse(date));
+            String carType=PoiUtil.getCellValueByCell(row.getCell(9));
+            monthPlan.setCarType(carType);
+            String sourceCargo=PoiUtil.getCellValueByCell(row.getCell(10));
+            monthPlan.setSourceCargo(sourceCargo);
+            String mpComment=PoiUtil.getCellValueByCell(row.getCell(11));
+            monthPlan.setMpComment(mpComment);
+            monthPlanList.add(monthPlan);
         }
-        return 0;
-
+        return monthplanDao.insertManyplans(monthPlanList);
     }
 
     @Override
@@ -101,9 +131,8 @@ public class monthplanServiceImp implements monthplanService {
         HSSFSheet sheetlist = wb.createSheet("sheetlist");
         //设置列宽
         for (int i = 0; i < list.size(); i++) {
-            sheetlist.setColumnWidth(i, 3766);
+            sheetlist.setColumnWidth(i, 5000);
         }
-        sheetlist.setColumnWidth(6, 6000);
         //表头格式
         HSSFCellStyle cellStyle = wb.createCellStyle();
         cellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
@@ -137,5 +166,10 @@ public class monthplanServiceImp implements monthplanService {
         //写出excel文件
         wb.write(out);
         out.close();
+    }
+
+    @Override
+    public Integer deleteMany(List<Integer> mpidList) {
+        return monthplanDao.deleteMany(mpidList);
     }
 }

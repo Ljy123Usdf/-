@@ -51,10 +51,19 @@ public interface MonthplanDao {
     @Insert("<script>" +
             "<foreach collection=\"monthplanList\" item=\"item\" separator=\";\">" +
             "insert into month_plan values(default,#{item.cargoName}, #{item.dayAvaerage}" +
-            ",#{item.netLoad},#{item.carNumber},#{item.cargoTransportRate},#{item.transmitWeight})" +
+            ",#{item.netLoad},#{item.carNumber},#{item.cargoTransportRate},#{item.transmitWeight}" +
             ",#{item.endStation},#{item.beginStation},#{item.date},#{item.carType}" +
-            ",#{item.sourceCargo},#{item.mpComment}" +
+            ",#{item.sourceCargo},#{item.mpComment})" +
             "</foreach>" +
             "</script>")
     Integer insertManyplans(@Param("monthplanList")List<MonthPlan> monthplanList);
+
+    @Delete("<script>" +
+            "delete from month_plan where mp_id in (" +
+            "<foreach collection=\"mpidList\" item=\"item\" separator=\",\">" +
+            " #{item}" +
+            "</foreach>" +
+            ")" +
+            "</script>")
+    Integer deleteMany(@Param("mpidList") List<Integer> mpidList);
 }

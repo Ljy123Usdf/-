@@ -43,44 +43,6 @@ public class PoiUtil {
     }
 
     /**
-     * 获取单元格各类型值，返回字符串类型
-     * @param cell
-     * @return
-     */
-    public static String getCellValueByCell(Cell cell) {
-        //判断是否为null或空串
-        if (cell==null || cell.toString().trim().equals("")) {
-            return "";
-        }
-        String cellValue = "";
-        int cellType=cell.getCellType();
-        if(cellType== Cell.CELL_TYPE_FORMULA){ //表达式类型
-            cellType=evaluator.evaluate(cell).getCellType();
-        }
-
-        switch (cellType) {
-            case Cell.CELL_TYPE_STRING: //字符串类型
-                cellValue= cell.getStringCellValue().trim();
-                cellValue=StringUtils.isNullOrEmpty(cellValue) ? "" : cellValue;
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:  //布尔类型
-                cellValue = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_NUMERIC: //数值类型
-                if (HSSFDateUtil.isCellDateFormatted(cell)) {  //判断日期类型
-                    cellValue =    cell.getDateCellValue().toString();
-                } else {  //否
-                    cellValue = new DecimalFormat("#.######").format(cell.getNumericCellValue());
-                }
-                break;
-            default: //其它类型，取空串
-                cellValue = "";
-                break;
-        }
-        return cellValue;
-    }
-
-    /**
      * @desc  设置excel文本格式
      * @param targetWorkbook
      * @param targetSheet
@@ -115,4 +77,93 @@ public class PoiUtil {
         }
     }
 
+    /**
+     * @param cell 一个单元格的对象
+     * @return 返回该单元格相应的类型的值
+     */
+    public static String getCellValueByCell(Cell cell) {
+        //判断是否为null或空串
+        if (cell==null || cell.toString().trim().equals("")) {
+            return "";
+        }
+        String cellValue = "";
+        int cellType=cell.getCellType();
+        if(cellType==Cell.CELL_TYPE_FORMULA){ //表达式类型
+            cellType=evaluator.evaluate(cell).getCellType();
+        }
+
+        switch (cellType) {
+            case Cell.CELL_TYPE_STRING: //字符串类型
+                cellValue= cell.getStringCellValue().trim();
+                cellValue=StringUtils.isNullOrEmpty(cellValue) ? "" : cellValue;
+                break;
+            case Cell.CELL_TYPE_BOOLEAN:  //布尔类型
+                cellValue = String.valueOf(cell.getBooleanCellValue());
+                break;
+            case Cell.CELL_TYPE_NUMERIC: //数值类型
+                if (HSSFDateUtil.isCellDateFormatted(cell)) {  //判断日期类型
+                    cellValue =    cell.getDateCellValue().toString();
+                } else {  //否
+                    cellValue = new DecimalFormat("#.######").format(cell.getNumericCellValue());
+                }
+                break;
+            default: //其它类型，取空串
+                cellValue = "";
+                break;
+        }
+        return cellValue;
+    }
+
+    /**
+     *  根据单元格数据是否为空，判断该行数据是否有效
+     *  具体需要哪些单元格不为空 需要查询数据库哪些字段 not null
+     * @param wb  表格对象
+     * @param indexs  不为空的单元格下标
+     * @param colCount  一共有多少字段
+     * @return
+     */
+    public static int getEffectiveRowNum(HSSFWorkbook wb,int[] indexs,int colCount){
+        boolean flag = true;
+        Sheet sheet = wb.getSheetAt(0);
+        //有效行数
+        int rowNum = 0;
+        for (Row row : sheet) {
+            int effectiveValue = 0;
+            for(int i = 0; i < colCount; i++){
+                Cell cell = row.getCell(i);
+                for (int index : indexs) {
+                    //如果这个单元格是需要不为空的,则判断它是否不为空
+                    if (i == index) {
+                        if (!PoiUtil.isNullOrEmpty(cell)) {
+                            effectiveValue++;
+                            break;
+                        }
+                        if (i == colCount - 1) {
+                            flag = false;
+                        }
+                    }
+                }
+                if (effectiveValue > 0) {
+                    break;
+                }
+            }
+            if (effectiveValue > 0) {
+                rowNum++;
+            }
+            if(!flag) {
+                break;
+            }
+        }
+        //减去表头那一行
+        return rowNum - 1;
+    }
+
+    /**
+     * 对象是否为无效值
+     * @param obj 要判断的对象
+     * @return 是否为有效值(不为null 和 ""字符串)
+     */
+    public static boolean isNullOrEmpty(Object obj) {
+        return obj == null || "".equals(obj.toString());
+    }
 }

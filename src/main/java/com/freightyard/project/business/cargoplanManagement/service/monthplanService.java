@@ -25,7 +25,9 @@ public interface monthplanService {
 
     List<MonthPlan> selectmonthplanBycondition(monthPlanCondition monthPlanCondition);
 
-    Integer insertManyplans(List<MonthPlan> monthPlanList, MultipartFile multipartFile) throws Exception;
+    Integer insertManyplans(MultipartFile multipartFile) throws Exception;
 
     void downloadMonthplanTemplate(HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    Integer deleteMany(List<Integer> mpidList);
 }
